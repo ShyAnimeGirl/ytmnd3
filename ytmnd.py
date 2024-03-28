@@ -5,7 +5,7 @@ import os
 import os.path
 import re
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import simplejson
 from optparse import OptionParser
 
@@ -23,11 +23,11 @@ class YTMND:
   # Scrapes sites from the profile page, then fetches them
   def fetch_user(self, user):
     if user == "":
-      print("expecting one ytmnd name, got "+str(sys.argv))
+      print(("expecting one ytmnd name, got "+str(sys.argv)))
       return
 
     ytmnd_name = user 
-    ytmnd_html = urllib2.urlopen("http://ytmnd.com/users/" + ytmnd_name + "/sites").readlines()
+    ytmnd_html = urllib.request.urlopen("http://ytmnd.com/users/" + ytmnd_name + "/sites").readlines()
     
     domains = []
     
@@ -49,7 +49,7 @@ class YTMND:
       self.write_json(ytmnd_name, parsed)
 
     else:
-      print ">> found %d domains" % len( domains )
+      print((">> found %d domains" % len( domains )))
       os.system("mkdir -p %s" % user)
       os.chdir(user)
       if not self.no_web_audio:
@@ -62,22 +62,22 @@ class YTMND:
   def fetch_ytmnd(self, domain):
 
     if domain == "":
-      print("expecting one ytmnd name, got "+str(sys.argv))
+      print(("expecting one ytmnd name, got "+str(sys.argv)))
       return
 
     if not self.print_json:
-      print "fetching %s" % domain
+      print(( "fetching %s" % domain))
     if not self.sleep:
       time.sleep(self.sleep)
 
     ytmnd_name = domain
-    ytmnd_html = urllib2.urlopen("http://" + domain + ".ytmnd.com").read()
+    ytmnd_html = urllib.request.urlopen("http://" + domain + ".ytmnd.com").read().decode('utf-8')
     expr = r"ytmnd.site_id = (\d+);"
     ytmnd_id = re.search(expr,ytmnd_html).group(1)
-    ytmnd_info = simplejson.load(urllib2.urlopen("http://" + domain + ".ytmnd.com/info/" + ytmnd_id + "/json"))
+    ytmnd_info = simplejson.load(urllib.request.urlopen("http://" + domain + ".ytmnd.com/info/" + ytmnd_id + "/json"))
 
     if self.print_json:
-      print simplejson.dumps(ytmnd_info, sort_keys=True, indent=4 * ' ')
+      print((simplejson.dumps(ytmnd_info, sort_keys=True, indent=4 * ' ')))
     elif self.json_only:
       if self.media_only:
         self.fetch_media(ytmnd_info)
@@ -101,7 +101,7 @@ class YTMND:
     wav_type = ytmnd_info['site']['sound']['type']
     
     if 'alternates' in ytmnd_info['site']['sound']:
-      key = ytmnd_info['site']['sound']['alternates'].keys()[0]
+      key = list(ytmnd_info['site']['sound']['alternates'].keys())[0]
       value = ytmnd_info['site']['sound']['alternates'][key]
       if value['file_type'] != 'swf':
         original_wav = value['file_url']
@@ -124,7 +124,7 @@ class YTMND:
     wav_type = ytmnd_info['site']['sound']['type']
     
     if 'alternates' in ytmnd_info['site']['sound']:
-      key = ytmnd_info['site']['sound']['alternates'].keys()[0]
+      key = list(ytmnd_info['site']['sound']['alternates'].keys())[0]
       value = ytmnd_info['site']['sound']['alternates'][key]
       if value['file_type'] != 'swf':
         original_wav = value['file_url']
@@ -189,7 +189,7 @@ class YTMND:
 
   # print the layers of zoom text
   def write_zoom_layers (self, fn, text, offset, top):
-    for i in xrange(1, 51):
+    for i in range(1, 51):
       z_index = offset + i
       row_left = i * 2
       row_top = top + i
@@ -227,7 +227,7 @@ class YTMND:
       zoom_text = ""
     
     if 'alternates' in ytmnd_info['site']['sound']:
-      key = ytmnd_info['site']['sound']['alternates'].keys()[0]
+      key = list(ytmnd_info['site']['sound']['alternates'].keys())[0]
       value = ytmnd_info['site']['sound']['alternates'][key]
       if value['file_type'] != 'swf':
         wav_type = ytmnd_info['site']['sound']['file_type']
@@ -290,4 +290,5 @@ if __name__ == '__main__':
   else:
     name = args[0].replace("http://","").replace(".ytmnsfw.com","").replace(".ytmnd.com","").replace("/","")
     ytmnd.fetch_ytmnd( name )
+
 
