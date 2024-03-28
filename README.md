@@ -1,11 +1,18 @@
-ytmnd
+ytmnd3
 =====
 
-ytmnd scraper.
+ytmnd scraper. Updated to python3 kinda sorta
 
 `./ytmnd.py -u [username]`
 
 `./ytmnd.py [domain]`
+(IE the name of the page not the entire url, for example the page https://v55.ytmnd.com/ you would just use v55 so 'ytmnd.py v55')
+
+Requirements
+-------
+httplib
+simplejson
+wget
 
 serving
 -------
